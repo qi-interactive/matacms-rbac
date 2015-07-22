@@ -1,0 +1,5 @@
+{
+    "name": "RBAC",
+    "description": "RBAC module for MATA CMS applications.",
+    "version" : "1.0.0-alpha"
+}
