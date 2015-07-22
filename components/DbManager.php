@@ -74,4 +74,48 @@ class DbManager extends BaseDbManager implements ManagerInterface
     {
         return parent::getItem($name);
     }
+
+    /**
+     * Deleted roles and permissions assigned to user.
+     *
+     * @param  integer $userId
+     * @return array
+     */
+    public function deleteAllItemsByUser($userId)
+    {
+        if (empty($userId)) {
+            return [];
+        }
+
+        $command = \Yii::$app->getDb()->createCommand();
+        $command->delete($this->assignmentTable, 'user_id = :user_id', ['user_id' => $userId]);
+        return $command->execute();
+    }
+
+    /**
+     * Returns both roles and permissions assigned to user.
+     *
+     * @param  integer $userId
+     * @return array
+     */
+    public function getItemByUser($itemName, $userId)
+    {
+        if (empty($userId)) {
+            return [];
+        }
+
+        $query = (new Query)->select('b.*')
+            ->from(['a' => $this->assignmentTable, 'b' => $this->itemTable])
+            ->where('{{a}}.[[item_name]]={{b}}.[[name]]')
+            ->andWhere(['{{a}}.[[item_name]]' => (string) $itemName, 'a.user_id' => (string) $userId]);
+
+        $role = $query->one($this->db);
+        
+        if(!empty($role))
+            $role = $this->populateItem($role);
+
+        return $role;
+    }
+
+
 }

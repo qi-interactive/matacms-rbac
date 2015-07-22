@@ -10,8 +10,15 @@ namespace matacms\rbac;
 
 use matacms\rbac\components\DbManager;
 use matacms\rbac\components\ManagerInterface;
+use matacms\rbac\behaviors\RoleAssignmentActiveFormBehavior;
+use matacms\rbac\models\Assignment;
 use matacms\user\Module as UserModule;
+use matacms\widgets\ActiveField;
+use matacms\controllers\module\Controller;
+use matacms\user\controllers\AdminController as AdminController;
+use mata\base\MessageEvent;
 use yii\base\Application;
+use yii\base\Event;
 use yii\base\BootstrapInterface;
 
 /**
@@ -41,6 +48,18 @@ class Bootstrap implements BootstrapInterface
                 $app->getModule('rbac')->admins = $app->getModule('user')->admins;
             }
         }
+
+        Event::on(ActiveField::className(), ActiveField::EVENT_INIT_DONE, function(MessageEvent $event) {
+            $event->getMessage()->attachBehavior('roleAssignments', new RoleAssignmentActiveFormBehavior());
+        });
+
+        Event::on(AdminController::class, Controller::EVENT_MODEL_UPDATED, function(\matacms\base\MessageEvent $event) {
+            $this->processSave($event->getMessage());
+        });
+
+        Event::on(AdminController::class, Controller::EVENT_MODEL_CREATED, function(\matacms\base\MessageEvent $event) {
+            $this->processSave($event->getMessage());
+        });
     }
 
     /**
@@ -71,5 +90,39 @@ class Bootstrap implements BootstrapInterface
     protected function checkAuthManagerConfigured(Application $app)
     {
         return $app->authManager instanceof ManagerInterface;
+    }
+
+    private function processSave($model) {
+
+        if (empty($roles = \Yii::$app->request->post('RoleAssignments')))
+            return;
+
+        $userId = $model->getId();
+
+        \Yii::$app->authManager->deleteAllItemsByUser($userId);
+
+        if(is_array($roles)) {
+            foreach ($roles as $role) {
+                $this->saveRoleAssignment($role, $model, $userId);    
+            }
+        } elseif(is_string($roles)) {
+            $this->saveRoleAssignment($roles, $model, $userId);
+        }
+    }
+
+    private function saveRoleAssignment($roleName, $model, $userId)
+    {
+        $auth = \Yii::$app->authManager;
+        $assignmentItem = $auth->getItemByUser($roleName, $userId);
+
+        if ($assignmentItem == null) {
+
+            $role = $auth->getRole($roleName);
+            $assignment = $auth->assign($role, $userId);
+
+            if(empty($assignment))
+                throw new \yii\web\ServerErrorHttpException(\yii\helpers\CVarDumper::dumpAsString($assignment));
+
+        }
     }
 }

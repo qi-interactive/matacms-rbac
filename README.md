@@ -29,7 +29,7 @@ Changelog
 
 ## 1.0.2-alpha, July 22, 2015
 
-- Added migration with initial roles for MATA CMS
+- Added migration with initial roles for MATA CMS, Assignment widget updated, Bootstrap saves assignment roles
 
 ## 1.0.1-alpha, July 22, 2015
 

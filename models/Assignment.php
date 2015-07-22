@@ -34,18 +34,15 @@ class Assignment extends Model
     {
         parent::init();
         $this->manager = Yii::$app->authManager;
-        if ($this->user_id === null) {
-            throw new InvalidConfigException('user_id must be set');
-        }
-
-        $this->items = array_keys($this->manager->getItemsByUser($this->user_id));
+        if ($this->user_id !== null) {
+            $this->items = array_keys($this->manager->getItemsByUser($this->user_id));
+        }        
     }
 
     /** @inheritdoc */
     public function rules()
     {
         return [
-            ['user_id', 'required'],
             ['items', RbacValidator::className()],
             ['user_id', 'integer']
         ];
@@ -57,6 +54,10 @@ class Assignment extends Model
      */
     public function updateAssignments()
     {
+        if ($this->user_id === null) {
+            return false;
+        }
+
         if (!$this->validate()) {
             return false;
         }

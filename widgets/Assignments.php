@@ -16,6 +16,11 @@ use yii\base\Widget;
 
 class Assignments extends Widget
 {
+
+    public $userModel;
+
+    public $form;
+
     /** @var integer ID of the user to whom auth items will be assigned. */
     public $userId;
 
@@ -27,25 +32,19 @@ class Assignments extends Widget
     {
         parent::init();
         $this->manager = Yii::$app->authManager;
-        if ($this->userId === null) {
-            throw new InvalidConfigException('You should set ' . __CLASS__ . '::$userId');
+
+        if ($this->userModel === null) {
+            throw new InvalidConfigException('You should set ' . __CLASS__ . '::$userModel');
+        }
+
+        if ($this->form === null) {
+            throw new InvalidConfigException('You should set ' . __CLASS__ . '::$form');
         }
     }
 
     /** @inheritdoc */
     public function run()
     {
-        $model = Yii::createObject([
-            'class'   => Assignment::className(),
-            'user_id' => $this->userId,
-        ]);
-
-        if ($model->load(\Yii::$app->request->post())) {
-            $model->updateAssignments();
-        }
-
-        return $this->render('form', [
-            'model' => $model,
-        ]);
+        return $this->form->field($this->userModel, 'RoleAssignments')->roleAssignments();
     }
 }
