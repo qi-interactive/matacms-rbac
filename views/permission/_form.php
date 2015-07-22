@@ -16,7 +16,7 @@
 
 use kartik\select2\Select2;
 use matacms\widgets\ActiveForm;
-use matacms\helpers\Html;
+use yii\helpers\Html;
 
 ?>
 
