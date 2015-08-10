@@ -94,16 +94,16 @@ class Bootstrap implements BootstrapInterface
 
     private function processSave($model) {
 
-        if (empty($roles = \Yii::$app->request->post('RoleAssignments')))
-            return;
-
         $userId = $model->getId();
 
         \Yii::$app->authManager->deleteAllItemsByUser($userId);
 
+        if (empty($roles = \Yii::$app->request->post('RoleAssignments')))
+            return;
+
         if(is_array($roles)) {
             foreach ($roles as $role) {
-                $this->saveRoleAssignment($role, $model, $userId);    
+                $this->saveRoleAssignment($role, $model, $userId);
             }
         } elseif(is_string($roles)) {
             $this->saveRoleAssignment($roles, $model, $userId);

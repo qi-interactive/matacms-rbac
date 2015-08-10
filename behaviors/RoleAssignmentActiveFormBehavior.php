@@ -9,8 +9,6 @@
 namespace matacms\rbac\behaviors;
 
 use Yii;
-use mata\category\models\Category;
-use mata\category\models\CategoryItem;
 use matacms\rbac\helpers\Html;
 use yii\helpers\ArrayHelper;
 

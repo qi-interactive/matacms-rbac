@@ -18,13 +18,13 @@ class Html extends BaseHtml {
 	public static function activeRoleAssignmentsField($model, $attribute, $options = []) {
         $authManager = \Yii::$app->authManager;
 		$items = ArrayHelper::map($authManager->getItems(1), 'name', 'name');
-		$value = $model->isNewRecord ? [] : ArrayHelper::getColumn($authManager->getItemsByUser($model->getId()), 'name');
 
-		if ($value != null)
-			$options["value"] = $value;
+		$values = $model->isNewRecord ? [] : ArrayHelper::getColumn($authManager->getItemsByUser($model->getId()), 'name');
+
+		$options["values"] = $values;
 
 		if(!empty($_POST['RoleAssignments']))
-			$options["value"] = $_POST[CategoryItem::REQ_PARAM_CATEGORY_ID];
+			$options["values"] = $_POST['RoleAssignments'];
 
 		$options["name"] = 'RoleAssignments';
 
@@ -36,17 +36,32 @@ class Html extends BaseHtml {
             unset($options['prompt']);
         }
 
-		$options = ArrayHelper::merge([
-			'items' => $items,
-			'options' => ['multiple'=>true, 'prompt' => $prompt],
-			'clientOptions' => [
-			'plugins' => ["remove_button", "drag_drop", "restore_on_backspace"],
-			'create' => false,
-			'persist' => false,
-			]
-			], $options);
+		$retFields = '<div class="role-assigments">';
 
-		return Selectize::widget($options);
+
+
+		foreach($authManager->getItems(1) as $item) {
+			if(empty($item->children)) {
+				$retFields .= self::wrapCheckbox($options["name"], $item->name, $options["values"]);
+			}
+			else {
+				$retFields .= self::wrapCheckbox($options["name"], $item->name, $options["values"]);
+				foreach($item->children as $child) {
+					$retFields .= self::wrapCheckbox($options["name"], $child->name, $options["values"], 1);
+				}
+			}
+
+		}
+
+		$retFields .= '</div>';
+
+
+		return $retFields;
+	}
+
+	public static function wrapCheckbox($name, $itemName, $values, $level = 0) {
+		$checked = in_array($itemName, $values);
+		return '<div class="level-' . $level . '"><label class="checkbox-wrapper"><input type="checkbox" name="' . $name . '[]" value="' . $itemName . '" ' . ($checked == true ? 'checked="checked"': '') .'><div></div><span class="checkbox-label">' . $itemName . '</span></label></div>';
 	}
 
 }

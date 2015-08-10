@@ -9,6 +9,7 @@
 namespace matacms\rbac\components;
 
 use yii\db\Query;
+use yii\db\Expression;
 use yii\rbac\DbManager as BaseDbManager;
 
 /**
@@ -39,10 +40,27 @@ class DbManager extends BaseDbManager implements ManagerInterface
         $items = [];
 
         foreach ($query->all($this->db) as $row) {
-            $items[$row['name']] = $this->populateItem($row);
+            $parent = $this->getParent($row['name']);
+            if(empty($parent))
+                $items[$row['name']] = $this->populateItem($row);
         }
 
         return $items;
+    }
+
+    public function getParent($name)
+    {
+        $query = (new Query)
+            ->select(['name', 'type', 'description', 'rule_name', 'data', 'created_at', 'updated_at'])
+            ->from([$this->itemTable, $this->itemChildTable])
+            ->where(['child' => $name, 'name' =>  new Expression('[[parent]]')]);
+
+        $parent = $query->one($this->db);
+
+        if(!empty($parent))
+            $parent = $this->populateItem($parent);
+
+        return $parent;
     }
 
     /**
@@ -110,12 +128,63 @@ class DbManager extends BaseDbManager implements ManagerInterface
             ->andWhere(['{{a}}.[[item_name]]' => (string) $itemName, 'a.user_id' => (string) $userId]);
 
         $role = $query->one($this->db);
-        
+
         if(!empty($role))
             $role = $this->populateItem($role);
 
         return $role;
     }
 
+    public function getIsAdmin($userId)
+    {
+        return $this->getItemByUser('admin', $userId);
+    }
+
+    public function hasRoles($userId)
+    {
+        return !empty($this->getItemsByUser($userId));
+    }
+
+    protected function populateItem($row)
+    {
+        $class = $row['type'] == \matacms\rbac\Item::TYPE_PERMISSION ? \yii\rbac\Permission::className() : \matacms\rbac\Role::className();
+
+        if (!isset($row['data']) || ($data = @unserialize($row['data'])) === false) {
+            $data = null;
+        }
+
+        $children = $this->getChildren($row['name']);
+
+        $item = new $class([
+            'name' => $row['name'],
+            'type' => $row['type'],
+            'description' => $row['description'],
+            'ruleName' => $row['rule_name'],
+            'data' => $data,
+            'createdAt' => $row['created_at'],
+            'updatedAt' => $row['updated_at'],
+            'children' => $children
+        ]);
+
+        return $item;
+    }
+
+    public function getUsersIdsWithRole($role)
+    {
+        if (empty($role)) {
+            return [];
+        }
+
+        $query = (new Query)->select('a.user_id')
+            ->from(['a' => $this->assignmentTable])
+            ->where(['a.item_name' => $role]);
+
+        $users = [];
+        foreach ($query->all($this->db) as $row) {
+            $users[] = (int) $row['user_id'];
+        }
+
+        return $users;
+    }
 
 }

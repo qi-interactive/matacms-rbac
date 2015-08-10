@@ -34,7 +34,7 @@ class Module extends BaseModule
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => function () {
-                            return in_array(Yii::$app->user->identity->username, $this->admins);
+                            return Yii::$app->user->identity->getIsAdmin();
                         },
                     ]
                 ],

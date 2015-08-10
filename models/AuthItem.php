@@ -9,7 +9,7 @@
 namespace matacms\rbac\models;
 
 use yii\base\Model;
-use yii\rbac\Item;
+use matacms\rbac\Item;
 use matacms\rbac\validators\RbacValidator;
 
 abstract class AuthItem extends Model

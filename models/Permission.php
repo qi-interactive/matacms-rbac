@@ -10,7 +10,7 @@ namespace matacms\rbac\models;
 use yii\helpers\ArrayHelper;
 use yii\rbac\Item;
 
-class Permission extends AuthItem
+class Permission extends Item
 {
     /** @inheritdoc */
     public function getUnassignedItems()
