@@ -21,8 +21,8 @@ use yii\helpers\Html;
     <?= Yii::t('user', 'Hello') ?>,
 </p>
 <p style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.6; font-weight: normal; margin: 0 0 10px; padding: 0;">
-    <?= Yii::t('user', 'This is review request from {0}', $authorName) ?>.
-    <?= Yii::t('user', 'Please click the link below to open document.') ?>.
+    <?= Yii::t('user', 'This is review request from {0} for {1} <strong>{2}</strong>', [$authorName, $modelLabel, $label]) ?>.
+    <?= Yii::t('user', 'Please click the link below to review it.') ?>.
 </p>
 <p style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.6; font-weight: normal; margin: 0 0 10px; padding: 0;">
     <?= Html::a(Html::encode($documentForReviewUrl), $documentForReviewUrl); ?>

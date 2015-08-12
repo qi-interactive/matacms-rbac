@@ -12,8 +12,8 @@
 ?>
 <?= Yii::t('user', 'Hello') ?>,
 
-<?= Yii::t('user', 'This is review request from {0}', $authorName) ?>.
-<?= Yii::t('user', 'Please click the link below to open document.') ?>.
+<?= Yii::t('user', 'This is review request from {0} for {1} <strong>{2}</strong>', [$authorName, $modelLabel, $label]) ?>.
+<?= Yii::t('user', 'Please click the link below to review it.') ?>.
 
 <?= $documentForReviewUrl ?>
 
