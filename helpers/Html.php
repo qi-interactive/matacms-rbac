@@ -42,12 +42,12 @@ class Html extends BaseHtml {
 
 		foreach($authManager->getItems(1) as $item) {
 			if(empty($item->children)) {
-				$retFields .= self::wrapCheckbox($options["name"], $item->name, $options["values"]);
+				$retFields .= self::wrapCheckbox($options["name"], $item->name, null, $options["values"]);
 			}
 			else {
-				$retFields .= self::wrapCheckbox($options["name"], $item->name, $options["values"]);
+				$retFields .= self::wrapCheckbox($options["name"], $item->name, null, $options["values"]);
 				foreach($item->children as $child) {
-					$retFields .= self::wrapCheckbox($options["name"], $child->name, $options["values"], 1);
+					$retFields .= self::wrapCheckbox($options["name"], $child->name, $item->name, $options["values"], 1);
 				}
 			}
 
@@ -55,13 +55,45 @@ class Html extends BaseHtml {
 
 		$retFields .= '</div>';
 
+		\Yii::$app->view->registerJs("
+
+			$('.role-assigments input:checkbox').change(function() {
+				var isChecked = $(this).attr('checked') !== undefined,
+				parentItem = $(this).attr('data-parent');
+
+				if(isChecked && parentItem != null) {
+					var parentCheckedOnInit = $('input[value=\"' + parentItem + '\"]').attr('data-checked') !== undefined;
+
+					if(!parentCheckedOnInit)
+						$('input[value=\"' + parentItem + '\"]').prop('checked', false).removeAttr('checked').removeAttr('data-checked');
+
+					$(this).prop('checked', false).removeAttr('checked').removeAttr('data-checked');
+				}
+
+				if(!isChecked && parentItem != null) {
+					var parentCheckedOnInit = $('input[value=\"' + parentItem + '\"]').attr('data-checked') !== undefined;
+					if(!parentCheckedOnInit)
+						$('input[value=\"' + parentItem + '\"]').prop('checked', true).attr('checked', 'checked');
+					$(this).prop('checked', true).attr('checked', 'checked').attr('data-checked', 'true');
+				}
+
+				if(!isChecked && parentItem == null) {
+					$(this).attr('checked', 'checked');
+				}
+
+				if(isChecked && parentItem == null) {
+					$(this).removeAttr('checked').removeAttr('data-checked');
+				}
+			});
+		", View::POS_READY);
+
 
 		return $retFields;
 	}
 
-	public static function wrapCheckbox($name, $itemName, $values, $level = 0) {
+	public static function wrapCheckbox($name, $itemName, $parentName = null, $values, $level = 0) {
 		$checked = in_array($itemName, $values);
-		return '<div class="level-' . $level . '"><label class="checkbox-wrapper"><input type="checkbox" name="' . $name . '[]" value="' . $itemName . '" ' . ($checked == true ? 'checked="checked"': '') .'><div></div><span class="checkbox-label">' . $itemName . '</span></label></div>';
+		return '<div class="level-' . $level . '"><label class="checkbox-wrapper"><input type="checkbox" name="' . $name . '[]" value="' . $itemName . '" ' . ($checked == true ? 'checked="checked" data-checked="true"': '') .' ' . ($parentName!=null ? 'data-parent="' . $parentName . '"' : '') . '><div></div><span class="checkbox-label">' . $itemName . '</span></label></div>';
 	}
 
 }
