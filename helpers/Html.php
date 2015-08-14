@@ -83,6 +83,7 @@ class Html extends BaseHtml {
 
 				if(isChecked && parentItem == null) {
 					$(this).removeAttr('checked').removeAttr('data-checked');
+					$('input[data-parent=\"' + $(this).val() + '\"]').prop('checked', false).removeAttr('checked').removeAttr('data-checked');
 				}
 			});
 		", View::POS_READY);
