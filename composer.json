@@ -11,6 +11,9 @@
     "yiisoft/yii2": "2.0.*",
     "matacms/matacms-base": "~1.0-alpha"
   },
+  "require-dev": {
+    "matacms/matacms-base": "dev-development"
+  },
   "autoload": {
     "psr-4": {
       "matacms\\rbac\\": ""
