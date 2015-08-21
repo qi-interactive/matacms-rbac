@@ -27,6 +27,12 @@ php yii migrate/up --migrationPath=@vendor/matacms/matacms-rbac/migrations
 Changelog
 ---------
 
+## 1.0.3-alpha, August 21, 2015
+
+- Fixed for role assignments form field
+- Added review request email template
+- Updates
+
 ## 1.0.2.1-alpha, July 22, 2015
 
 - Updates
