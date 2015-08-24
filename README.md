@@ -27,6 +27,10 @@ php yii migrate/up --migrationPath=@vendor/matacms/matacms-rbac/migrations
 Changelog
 ---------
 
+## 1.0.3.1-alpha, August 23, 2015
+
+- Fix for roles migration
+
 ## 1.0.3-alpha, August 21, 2015
 
 - Fixed for role assignments form field

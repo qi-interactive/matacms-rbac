@@ -42,16 +42,6 @@ class m150722_094438_init extends Migration {
         ]);
 
         $this->insert('{{%auth_item_child}}', [
-            'parent' => 'admin',
-            'child' => 'publisher'
-        ]);
-
-        $this->insert('{{%auth_item_child}}', [
-            'parent' => 'admin',
-            'child' => 'reviewer'
-        ]);
-
-        $this->insert('{{%auth_item_child}}', [
             'parent' => 'publisher',
             'child' => 'reviewer'
         ]);
@@ -59,8 +49,6 @@ class m150722_094438_init extends Migration {
 
 	public function safeDown() {
 		$this->delete('{{%auth_item_child}}', ['parent' => 'publisher', 'child' => 'reviewer']);
-        $this->delete('{{%auth_item_child}}', ['parent' => 'admin', 'child' => 'reviewer']);
-        $this->delete('{{%auth_item_child}}', ['parent' => 'admin', 'child' => 'publisher']);
 
         $this->truncateTable('{{%auth_assignment}}');
 
